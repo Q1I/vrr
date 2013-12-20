@@ -223,4 +223,10 @@ VRR::addToPset(nsaddr_t node) {
     std::cout << "##current pset of "<<ra_addr() << std::endl;
     for (std::set<int>::iterator it = pset.begin(); it != pset.end(); ++it)
         std::cout <<*it<<std::endl;
+    
+    // add 2 rt
+    route rt = {ra_addr(), node, NULL, node, 0 }; // ea, eb, na, nb, id
+    rtable_.add_entry(rt);
+    cout<<"###size:"<<rtable_.size()<<std::endl;
+    rtable_.print();
 }
