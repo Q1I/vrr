@@ -36,6 +36,10 @@ VRR::VRR(nsaddr_t id) : Agent(PT_VRR), pkt_timer_(this) {
     bind_bool("accesible_var_", &accesible_var_);
     ra_addr_ = id;
     node_ = (MobileNode*) Node::get_node_by_address(id);
+
+    // init pset
+    //    this->r = 4;
+    //    pset = new nsaddr_t[r];
 }
 
 int
@@ -57,8 +61,7 @@ VRR::command(int argc, const char*const* argv) {
             }
             return TCL_OK;
         }
-    }
-    else if (argc == 3) {
+    } else if (argc == 3) {
         // Obtains corresponding dmux to carry packets to upper layers
         if (strcmp(argv[1], "port-dmux") == 0) {
             dmux_ = (PortClassifier*) TclObject::lookup(argv[2]);
@@ -67,7 +70,7 @@ VRR::command(int argc, const char*const* argv) {
                 return TCL_ERROR;
             }
             return TCL_OK;
-        }            // Obtains corresponding tracer
+        }// Obtains corresponding tracer
         else if (strcmp(argv[1], "log-target") == 0 || strcmp(argv[1], "tracetarget") == 0) {
             logtarget_ = (Trace*) TclObject::lookup(argv[2]);
             if (logtarget_ == 0)
@@ -81,7 +84,7 @@ VRR::command(int argc, const char*const* argv) {
 
 void
 VRR::recv(Packet* p, Handler* h) {
-    std::cout << "#recv" << std::endl << "\t\tsrc=" << ra_addr() << std::endl;
+    std::cout << "#recv" << std::endl << "\t\tthisNode=" << ra_addr() << std::endl;
 
     struct hdr_cmn* ch = HDR_CMN(p);
     struct hdr_ip* ih = HDR_IP(p);
@@ -91,7 +94,7 @@ VRR::recv(Packet* p, Handler* h) {
         if (ch->num_forwards() > 0) {
             drop(p, DROP_RTR_ROUTE_LOOP);
             return;
-        }            // else if this is a packet I am originating, must add IP header
+        }// else if this is a packet I am originating, must add IP header
         else if (ch->num_forwards() == 0)
             ch->size() += IP_HDR_LEN;
     }
@@ -110,15 +113,23 @@ VRR::recv(Packet* p, Handler* h) {
     }
 }
 
+
+// future hello
+
 void
 VRR::recv_vrr_pkt(Packet* p) {
-    std::cout << "#recv_vrr_pkt" << std::endl << "\t\tsrc=" << ra_addr() << std::endl;
-//    MobileNode *thisnode = (MobileNode *) ((Node::get_node_by_address(ra_addr_)));
-//    printf("This node: %d\n",thisnode->address());
-    std::cout << "------------------" << std::endl;
-    
+    std::cout << "#recv_vrr_pkt" << std::endl << "\t\tthisNode=" << ra_addr() << std::endl;
+    //    MobileNode *thisnode = (MobileNode *) ((Node::get_node_by_address(ra_addr_)));
+    //    printf("This node: %d\n",thisnode->address());
+
+
     struct hdr_ip* ih = HDR_IP(p);
     struct hdr_vrr_pkt* ph = HDR_VRR_PKT(p);
+
+    std::cout << "p_dst:" << ph->pkt_dst() << " p_src(Sender):" << ph->pkt_src() << " length:" << ph->pkt_len() << " sqNum:" << ph->pkt_seq_num() << std::endl;
+
+    // add 2 pset
+    addToPset(ph->pkt_src());
 
     // All routing messages are sent from and to port RT_PORT,
     // so we check it.
@@ -129,21 +140,23 @@ VRR::recv_vrr_pkt(Packet* p) {
 
     // Release resources
     Packet::free(p);
+    std::cout << "------------------" << std::endl;
 }
 
 void
 VRR::send_vrr_pkt() {
-    std::cout << "#send_vrr" << std::endl << "\t\tsrc=" << ra_addr_ << "\ttime: "<<CURRENT_TIME<<std::endl;
-//    MobileNode *thisnode = (MobileNode *) ((Node::get_node_by_address(ra_addr_)));
-//    printf("This node: %d\n",thisnode->address());
-    std::cout<<"PT_VRR="<<PT_VRR<<" hdrc_cmn::DOWN="<<hdr_cmn::DOWN<<" IP_BROAD="<<IP_BROADCAST<<" NS_AF_INET="<<NS_AF_INET<<std::endl;
-    std::cout << "------------------" << std::endl;
+    std::cout << "#send_vrr" << std::endl << "\t\tthisNode=" << ra_addr_ << "\ttime: " << CURRENT_TIME << std::endl;
+    //    MobileNode *thisnode = (MobileNode *) ((Node::get_node_by_address(ra_addr_)));
+    //    printf("This node: %d\n",thisnode->address());
+    std::cout << "ph PT_VRR=" << PT_VRR << " hdrc_cmn::DOWN=" << hdr_cmn::DOWN << " IP_BROAD=" << IP_BROADCAST << " NS_AF_INET=" << NS_AF_INET << std::endl;
+
     Packet* p = allocpkt();
     struct hdr_cmn* ch = HDR_CMN(p);
     struct hdr_ip* ih = HDR_IP(p);
     struct hdr_vrr_pkt* ph = HDR_VRR_PKT(p);
 
     ph->pkt_src() = ra_addr();
+    ph->pkt_dst() = 1;
     ph->pkt_len() = 7;
     ph->pkt_seq_num() = seq_num_++;
 
@@ -160,6 +173,9 @@ VRR::send_vrr_pkt() {
     ih->dport() = RT_PORT;
     ih->ttl() = IP_DEF_TTL;
 
+    std::cout << "ch PT_VRR=" << ch->ptype() << " ch->direction()=" << ch->direction() << " size=" << ch->size() << " nextHop=" << ch->next_hop() << std::endl;
+    std::cout << "------------------" << std::endl;
+
     Scheduler::instance().schedule(target_, p, JITTER);
 }
 
@@ -170,7 +186,7 @@ VRR::reset_vrr_pkt_timer() {
 
 void
 VRR::forward_data(Packet* p) {
-    std::cout << "#fwd" << std::endl << "\t\tsrc=" << std::endl;
+    std::cout << "#fwd" << std::endl;
 
     struct hdr_cmn* ch = HDR_CMN(p);
     struct hdr_ip* ih = HDR_IP(p);
@@ -198,4 +214,13 @@ VRR::forward_data(Packet* p) {
         }
         Scheduler::instance().schedule(target_, p, 0.0);
     }
+}
+
+void
+VRR::addToPset(nsaddr_t node) {
+    std::cout << "##thisNode=" << ra_addr() << " addToPset:" << node << std::endl;
+    pset.insert(node);
+    std::cout << "##current pset of "<<ra_addr() << std::endl;
+    for (std::set<int>::iterator it = pset.begin(); it != pset.end(); ++it)
+        std::cout <<*it<<std::endl;
 }

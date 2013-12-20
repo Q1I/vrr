@@ -30,11 +30,13 @@ vrr_rtable::add_entry(nsaddr_t dest, nsaddr_t next) {
 
 nsaddr_t
 vrr_rtable::lookup(nsaddr_t dest) {
-	rtable_t::iterator it = rt_.find(dest);
-	if (it == rt_.end())
-		return IP_BROADCAST;
-	else
-		return (*it).second;
+//	rtable_t::iterator it = rt_.find(dest);
+//	if (it == rt_.end())
+//		return IP_BROADCAST;
+//	else
+//		return (*it).second;
+    std::cout<<"#Lookup"<<std::endl;
+    return 1;
 }
 
 u_int32_t

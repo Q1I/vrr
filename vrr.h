@@ -16,6 +16,7 @@
 #include "ip.h"
 #include "delay.h"
 #include <vector>
+#include <set>
 
 #define CURRENT_TIME Scheduler::instance().clock()
 #define JITTER (Random::uniform()*0.5)
@@ -49,8 +50,9 @@ class VRR : public Agent {
    int accesible_var_;
    u_int8_t seq_num_;
    std::vector<nsaddr_t> vset;
-   std::vector<nsaddr_t> pset;
-
+   std::set<nsaddr_t> pset;
+   int r;
+   
    protected:
 
    MobileNode* node_;
@@ -63,6 +65,7 @@ class VRR : public Agent {
    inline int& accessible_var() { return accesible_var_; }
 //   inline std::vector<nsaddr_t>& vset(){ if(vset!=NULL)return vset;};
 //   inline std::vector<nsaddr_t>& pset(){ if(pset!=NULL)return pset;};
+//   inline int& r(){return r;};
    
    void forward_data(Packet*);
    void recv_vrr_pkt(Packet*);
@@ -78,6 +81,8 @@ class VRR : public Agent {
    int command(int, const char*const*);
    void recv(Packet*, Handler*);
    //void mac_failed(Packet*);
+   void addToPset(nsaddr_t);
+   void init();
 };
 
 #endif

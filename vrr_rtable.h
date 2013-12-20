@@ -3,6 +3,7 @@
 
 #include <trace.h>
 #include <map>
+#include <iostream> 
 
 typedef std::map<nsaddr_t, nsaddr_t> rtable_t;
 
