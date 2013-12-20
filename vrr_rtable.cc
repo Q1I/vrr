@@ -2,7 +2,7 @@
 #include "ip.h"
 
 vrr_rtable::vrr_rtable() {
-//    rtable_t rt_ 
+    //    rtable_t rt_ 
 }
 
 void
@@ -19,7 +19,7 @@ void
 vrr_rtable::print() {
     std::cout << "###RTABLE:" << std::endl;
     for (rtable_t::iterator it = rt_.begin(); it != rt_.end(); it++) {
-        printf("eA:%d\teB:%d\t",(*it).eA,(*it).eB,(*it).nA,(*it).nB,(*it).id);
+        printf("eA:%d\teB:%d\tnA:%d\tnB:%d\tid:%d\n", (*it).eA, (*it).eB, (*it).nA, (*it).nB, (*it).id);
     }
 }
 
@@ -44,9 +44,10 @@ vrr_rtable::rm_entry(nsaddr_t eA, int id) {
 }
 
 void
-vrr_rtable::add_entry(route r) { 
-    if(rt_!=NULL)
-    rt_.insert(r);
+vrr_rtable::add_entry(route r) {
+    // check for duplicate
+    
+    rt_.push_back(r);
 }
 
 nsaddr_t
@@ -57,7 +58,7 @@ vrr_rtable::lookup(nsaddr_t dest) {
     //	else
     //		return (*it).second;
     std::cout << "#Lookup" << std::endl;
-    return 1;
+    rtable_t::iterator it = rt_.find(dest);
 }
 
 u_int32_t

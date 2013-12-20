@@ -219,14 +219,21 @@ VRR::forward_data(Packet* p) {
 void
 VRR::addToPset(nsaddr_t node) {
     std::cout << "##thisNode=" << ra_addr() << " addToPset:" << node << std::endl;
-    pset.insert(node);
-    std::cout << "##current pset of "<<ra_addr() << std::endl;
-    for (std::set<int>::iterator it = pset.begin(); it != pset.end(); ++it)
-        std::cout <<*it<<std::endl;
-    
-    // add 2 rt
-    route rt = {ra_addr(), node, NULL, node, 0 }; // ea, eb, na, nb, id
-    rtable_.add_entry(rt);
-    cout<<"###size:"<<rtable_.size()<<std::endl;
+
+    // check if duplicate
+    bool is_in = pset.find(node) != pset.end();
+    if (!is_in) {
+        std::cout << node << " is NOT in pset!" << std::endl;
+        // pset
+        pset.insert(node);
+        std::cout << "##current pset of " << ra_addr() << std::endl;
+        for (std::set<int>::iterator it = pset.begin(); it != pset.end(); ++it)
+            std::cout << *it << std::endl;
+
+        // add 2 rt
+        route rt = {ra_addr(), node, NULL, node, 0}; // ea, eb, na, nb, id
+        rtable_.add_entry(rt);
+    }
+    cout << "###size:" << rtable_.size() << std::endl;
     rtable_.print();
 }
