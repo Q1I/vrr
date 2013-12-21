@@ -2,3 +2,5 @@
 build
 nbproject
 .dep.inc
+*.nam
+*.tr

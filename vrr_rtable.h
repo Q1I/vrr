@@ -33,6 +33,9 @@ class vrr_rtable {
    void add_entry(route);
    void rm_entry(nsaddr_t,int);
    nsaddr_t lookup(nsaddr_t);
+   
+   route minRoute(nsaddr_t);
+   nsaddr_t nextHop(route r, nsaddr_t);
    u_int32_t size();
 };
 

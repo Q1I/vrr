@@ -212,6 +212,9 @@ VRR::forward_data(Packet* p) {
             } else
                 ch->next_hop() = next_hop;
         }
+        cout<<"nextHop: "<<ch->next_hop()<<std::endl;
+        cout<<"----------------------"<<std::endl;
+        
         Scheduler::instance().schedule(target_, p, 0.0);
     }
 }

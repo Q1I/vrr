@@ -83,6 +83,7 @@ class VRR : public Agent {
    //void mac_failed(Packet*);
    void addToPset(nsaddr_t);
    void init();
+   route minRoute();
 };
 
 #endif
