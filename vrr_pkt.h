@@ -16,19 +16,93 @@
 /*
  * AODV Routing Protocol Header Macros
  */
-//#define HDR_AODV(p)		((struct hdr_aodv*)hdr_aodv::access(p))
-//#define HDR_AODV_REQUEST(p)  	((struct hdr_aodv_request*)hdr_aodv::access(p))
-//#define HDR_AODV_REPLY(p)	((struct hdr_aodv_reply*)hdr_aodv::access(p))
-//#define HDR_AODV_ERROR(p)	((struct hdr_aodv_error*)hdr_aodv::access(p))
-//#define HDR_AODV_RREP_ACK(p)	((struct hdr_aodv_rrep_ack*)hdr_aodv::access(p))
+//#define HDR_VRR_PKT(p)		((struct hdr_vrr*)hdr_vrr_pkt::access(p))
+//#define HDR_VRR_SETUP_REQ(p)  	((struct hdr_vrr_setup_req*)hdr_vrr_pkt::access(p))
+//#define HDR_VRR_HELLO(p)	((struct hdr_vrr_hello*)hdr_vrr_pkt::access(p))
+//#define HDR_VRR_ERROR(p)	((struct hdr_vrr_error*)hdr_vrr::access(p))
+//#define HDR_VRR_RREP_ACK(p)	((struct hdr_vrr_rrep_ack*)hdr_vrr::access(p))
+
 
 #define HDR_VRR_PKT(p) hdr_vrr_pkt::access(p)
+#define HDR_VRR_HELLO(p)	((struct hdr_vrr_hello*)hdr_vrr_pkt::access(p))
+#define HDR_VRR_SETUP_REQ(p)  	((struct hdr_vrr_setup_req*)hdr_vrr_pkt::access(p))
 
+//struct hdr_vrr_pkt {
+//    u_int8_t pkt_type_; // Node which originated this packet
+//    nsaddr_t pkt_src_; // Node which originated this packet
+//    nsaddr_t pkt_dst_; // Destination
+//    u_int16_t pkt_len_; // Packet length (in bytes)
+//    u_int8_t pkt_seq_num_; // Packet sequence number
+//
+//     inline u_int8_t& pkt_type() {
+//        return pkt_type_;
+//    }
+//     
+//    inline nsaddr_t& pkt_src() {
+//        return pkt_src_;
+//    }
+//
+//    inline nsaddr_t& pkt_dst() {
+//        return pkt_dst_;
+//    }
+//
+//    inline u_int16_t& pkt_len() {
+//        return pkt_len_;
+//    }
+//
+//    inline u_int8_t& pkt_seq_num() {
+//        return pkt_seq_num_;
+//    }
+//
+//    static int offset_;
+//
+//    inline static int& offset() {
+//        return offset_;
+//    }
+//
+//    inline static hdr_vrr_pkt* access(const Packet* p) {
+//        return (hdr_vrr_pkt*) p->access(offset_);
+//    }
+//};
+
+/*
+ * General VRR Header - shared by all formats
+ */
 struct hdr_vrr_pkt {
+    u_int8_t vrr_type;
+
     nsaddr_t pkt_src_; // Node which originated this packet
     nsaddr_t pkt_dst_; // Destination
     u_int16_t pkt_len_; // Packet length (in bytes)
     u_int8_t pkt_seq_num_; // Packet sequence number
+
+    /*
+    u_int8_t        ah_reserved[2];
+    u_int8_t        ah_hopcount;
+     */
+
+    // Header access methods
+    static int offset_; // required by PacketHeaderManager
+
+    inline static int& offset() {
+        return offset_;
+    }
+
+    inline static hdr_vrr_pkt* access(const Packet* p) {
+        return (hdr_vrr_pkt*) p->access(offset_);
+    }
+};
+
+struct hdr_vrr_hello {
+    u_int8_t pkt_type_; // Packet Type
+    nsaddr_t pkt_src_; // Node which originated this packet
+    nsaddr_t pkt_dst_; // Destination
+    u_int16_t pkt_len_; // Packet length (in bytes)
+    u_int8_t pkt_seq_num_; // Packet sequence number
+
+    inline u_int8_t& pkt_type() {
+        return pkt_type_;
+    }
 
     inline nsaddr_t& pkt_src() {
         return pkt_src_;
@@ -57,93 +131,72 @@ struct hdr_vrr_pkt {
     }
 };
 
-/*
- * General AODV Header - shared by all formats
- */
-struct hdr_vrr {
-    u_int8_t ah_type;
-    /*
-    u_int8_t        ah_reserved[2];
-    u_int8_t        ah_hopcount;
-     */
+struct hdr_vrr_setup_req {
+    u_int8_t pkt_type_; // Packet Type
+    nsaddr_t pkt_dst_; // Destination IP Address
+    nsaddr_t pkt_src_; // Source IP Address
+    nsaddr_t pkt_proxy_; // Source IP Address
+        u_int16_t pkt_len_; // Packet length (in bytes)
+        u_int8_t pkt_seq_num_; // Packet sequence number
 
-    // Header access methods
-    static int offset_; // required by PacketHeaderManager
 
-    inline static int& offset() {
-        return offset_;
-    }
+    //    double req_timestamp; // when REQUEST sent;
 
-    inline static hdr_vrr* access(const Packet* p) {
-        return (hdr_vrr*) p->access(offset_);
-    }
+        inline nsaddr_t& pkt_src() {
+            return pkt_src_;
+        }
+    
+        inline u_int8_t& pkt_type() {
+            return pkt_type_;
+        }
+    
+        inline nsaddr_t& pkt_dst() {
+            return pkt_dst_;
+        }
+    
+        inline nsaddr_t& pkt_proxy() {
+            return pkt_proxy_;
+        }
+    
+        inline u_int16_t& pkt_len() {
+            return pkt_len_;
+        }
+    
+        inline u_int8_t& pkt_seq_num() {
+            return pkt_seq_num_;
+        }
+
+
 };
 
-struct hdr_vrr_setup_req {
-    u_int8_t req_type; // Packet Type
+struct hdr_vrr_setup {
+    u_int8_t s_type; // Packet Type
     u_int8_t reserved[2];
-    u_int8_t req_hop_count; // Hop Count
-    u_int32_t req_bcast_id; // Broadcast ID
+    u_int8_t s_hop_count; // Hop Count
+    nsaddr_t s_dst; // Destination IP Address
+    u_int32_t s_dst_seqno; // Destination Sequence Number
+    nsaddr_t s_src; // Source IP Address
+    double s_lifetime; // Lifetime
 
-    nsaddr_t req_dst; // Destination IP Address
-    u_int32_t req_dst_seqno; // Destination Sequence Number
-    nsaddr_t req_src; // Source IP Address
-    u_int32_t req_src_seqno; // Source Sequence Number
-
-    double req_timestamp; // when REQUEST sent;
+    double s_timestamp; // when corresponding REQ sent;
     // used to compute route discovery latency
-
-    // This define turns on gratuitous replies- see aodv.cc for implementation contributed by
-    // Anant Utgikar, 09/16/02.
-    //#define RREQ_GRAT_RREP	0x80
 
     inline int size() {
         int sz = 0;
         /*
-              sz = sizeof(u_int8_t)		// rq_type
-                   + 2*sizeof(u_int8_t) 	// reserved
-                   + sizeof(u_int8_t)		// rq_hop_count
-                   + sizeof(double)		// rq_timestamp
-                   + sizeof(u_int32_t)	// rq_bcast_id
-                   + sizeof(nsaddr_t)		// rq_dst
-                   + sizeof(u_int32_t)	// rq_dst_seqno
-                   + sizeof(nsaddr_t)		// rq_src
-                   + sizeof(u_int32_t);	// rq_src_seqno
+              sz = sizeof(u_int8_t)		// rp_type
+                   + 2*sizeof(u_int8_t) 	// rp_flags + reserved
+                   + sizeof(u_int8_t)		// rp_hop_count
+                   + sizeof(double)		// rp_timestamp
+                   + sizeof(nsaddr_t)		// rp_dst
+                   + sizeof(u_int32_t)	// rp_dst_seqno
+                   + sizeof(nsaddr_t)		// rp_src
+                   + sizeof(u_int32_t);	// rp_lifetime
          */
-        sz = 7 * sizeof (u_int32_t);
+        sz = 6 * sizeof (u_int32_t);
         assert(sz >= 0);
         return sz;
     }
-};
-
-struct hdr_vrr_setup {
-        u_int8_t        s_type;        // Packet Type
-        u_int8_t        reserved[2];
-        u_int8_t        s_hop_count;           // Hop Count
-        nsaddr_t        s_dst;                 // Destination IP Address
-        u_int32_t       s_dst_seqno;           // Destination Sequence Number
-        nsaddr_t        s_src;                 // Source IP Address
-        double	        s_lifetime;            // Lifetime
-
-        double          s_timestamp;           // when corresponding REQ sent;
-						// used to compute route discovery latency
-						
-  inline int size() { 
-  int sz = 0;
-  /*
-  	sz = sizeof(u_int8_t)		// rp_type
-	     + 2*sizeof(u_int8_t) 	// rp_flags + reserved
-	     + sizeof(u_int8_t)		// rp_hop_count
-	     + sizeof(double)		// rp_timestamp
-	     + sizeof(nsaddr_t)		// rp_dst
-	     + sizeof(u_int32_t)	// rp_dst_seqno
-	     + sizeof(nsaddr_t)		// rp_src
-	     + sizeof(u_int32_t);	// rp_lifetime
-  */
-  	sz = 6*sizeof(u_int32_t);
-  	assert (sz >= 0);
-	return sz;
-  }
 
 };
 

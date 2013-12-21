@@ -10,9 +10,9 @@ set val(ifqlen) 50                              ;# max packet in ifq
 set val(seed)   0.0
 #set val(rp)     AODV                            ;# routing protocol
 set val(rp)     VRR                       ;# routing protocol
-set val(nn)     25                               ;# number of nodes
-set val(x)      800.0                           ;# X dimension of topography
-set val(y)      800.0                           ;# Y dimension of topography
+set val(nn)     4                              ;# number of nodes
+set val(x)      400.0                           ;# X dimension of topography
+set val(y)      400.0                           ;# Y dimension of topography
 set val(stop)   10.0                            ;# time to stop simulation
 
 # Create a simulator instance
@@ -60,14 +60,31 @@ set k 0
 for {set i 0} {$i < 5 } {incr i} {
 	for {set j 0} {$j < 5 } {incr j} {
 		# pos
-		$node_($k) set X_ [expr $j * 200]
-		$node_($k) set Y_ [expr $i * 200]
-		$node_($k) set Z_ 0.0
+		#$node_($k) set X_ [expr $j * 200]
+		#$node_($k) set Y_ [expr $i * 200]
+		#$node_($k) set Z_ 0.0
 		# traffic
 		
 		incr k
 	}
 }
+
+$node_(0) set X_ 430.0
+$node_(0) set Y_ 110.0
+$node_(0) set Z_ 0.0
+
+$node_(1) set X_ 230.0
+$node_(1) set Y_ 140.0
+$node_(1) set Z_ 0.0
+
+$node_(2) set X_ 240.0
+$node_(2) set Y_ 80.0
+$node_(2) set Z_ 0.0
+
+$node_(3) set X_ 100.0
+$node_(3) set Y_ 100.0
+$node_(3) set Z_ 0.0
+
 
 # Define master nodes size in nam
 for {set i 0} {$i < $val(nn)} {incr i} {

@@ -70,11 +70,13 @@ class VRR : public Agent {
    void forward_data(Packet*);
    void recv_vrr_pkt(Packet*);
    void send_vrr_pkt();
-  
+    void send_vrr_hello();
+   void send_vrr_setup_req();
    void reset_vrr_pkt_timer();
    
 //   void send_hello();
-//   void recv_hello(Packet *p);
+   void recv_vrr_hello(Packet *p);
+   void recv_vrr_setup_req(Packet *p);
    public:
 
    VRR(nsaddr_t);
@@ -83,7 +85,6 @@ class VRR : public Agent {
    //void mac_failed(Packet*);
    void addToPset(nsaddr_t);
    void init();
-   route minRoute();
 };
 
 #endif

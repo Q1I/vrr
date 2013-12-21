@@ -19,7 +19,7 @@ vrr_rtable::print(Trace* out) {
 
 void
 vrr_rtable::print() {
-    std::cout << "###RTABLE:" << std::endl;
+    std::cout << "#RTABLE:" << std::endl;
     printf("eA:\teB:\tnA:\tnB:\tid:\n");
     for (rtable_t::iterator it = rt_.begin(); it != rt_.end(); it++) {
         printf("%d\t%d\t%d\t%d\t%d\n", (*it).eA, (*it).eB, (*it).nA, (*it).nB, (*it).id);
@@ -115,7 +115,6 @@ vrr_rtable::minRoute(nsaddr_t dest) {
     this->print();
     
     for (rtable_t::iterator it = rt_.begin(); it != rt_.end(); it++) {
-        cout << "#in for" << std::endl;
         r = *it;
         eA = (*it).eA;
         eB = (*it).eB;
